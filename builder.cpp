@@ -21,17 +21,17 @@ private:
 public:
     ComputerBuilder& setRAM(int r) {
         c.ram = r;
-        return *this;
+        // return *this;
     }
 
     ComputerBuilder& setStorage(int s) {
         c.storage = s;
-        return *this;
+        // return *this;
     }
 
     ComputerBuilder& setProcessor(string p) {
         c.processor = p;
-        return *this;
+        // return *this;
     }
 
     Computer build() {
@@ -40,11 +40,18 @@ public:
 };
 
 int main() {
-    Computer c = ComputerBuilder()
-                    .setRAM(16)
-                    .setStorage(512)
-                    .setProcessor("Intel")
-                    .build();
+    // Computer c = ComputerBuilder()
+    //                 .setRAM(16)
+    //                 .setStorage(512)
+    //                 .setProcessor("Intel")
+    //                 .build();
+    ComputerBuilder builder;
+
+builder.setRAM(16);
+builder.setStorage(512);
+builder.setProcessor("Intel");
+
+Computer c = builder.build();
 
     c.show();
 }
