@@ -19,7 +19,7 @@ class Room {
 
 };
 class Appointment{
-    public:
+    // public:
     Doctor *doctor;
     Patient *patient;
     Room* room;
@@ -62,26 +62,24 @@ class Doctor{
     vector<Appointment*> getAppointments(){
         vector<Appointment*>ans;
         for(auto it:appointments){
-            if(it->doctor->name == this->name){
+            if(it->getDoctor()== this){
                 ans.push_back(it);
             }
         }
         return ans;
-
     }
     vector<Patient*>getPatients(){
         vector<Patient*> ans;
         for(auto it:appointments){
-            if(it->doctor->name == this->name){
-                ans.push_back(it->patient);
+            if(it->getDoctor() == this){
+                ans.push_back(it->getPatient());
             }
         }
         return ans;
     }
 
 };
-class Patient{
-    public:
+class Patient{   
     string name;
     vector<Appointment*>appointments;
     public:
@@ -97,8 +95,8 @@ class Patient{
     vector<Doctor*> getDoctors(){
         vector<Doctor*> ans;
         for(auto it:appointments){
-            if(it->patient->name == this->name){
-                ans.push_back(it->doctor);
+            if(it->getPatient() == this){
+                ans.push_back(it->getDoctor());
             }
         }
         return ans;
