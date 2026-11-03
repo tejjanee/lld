@@ -1,83 +1,74 @@
 #include <iostream>
-#include <string>
-#include <vector>
-#include <algorithm>
 
 using namespace std;
 
-class LineItem {
-private:
-    string productName;
-    int quantity;
-    double unitPrice;
-
+class SeatValidator {
 public:
-    LineItem(const string& productName, int quantity, double unitPrice)
-        : productName(productName), quantity(quantity), unitPrice(unitPrice) {}
-
-    double getSubtotal() const {
-        return quantity * unitPrice;
-    }
-
-    string getProductName() const {
-        return productName;
-    }
-
-    void describe() const {
-        cout << productName << " x" << quantity
-             << " @ $" << unitPrice
-             << " = $" << getSubtotal() << endl;
+    bool isAvailable(const string& eventId, const string& seatNumber) {
+        cout << "Checking seat " << seatNumber << " for event " << eventId << endl;
+        return true; // Simulated: seat is available
     }
 };
 
-class Order {
-private:
-    string orderId;
-    vector<LineItem> lineItems;
-
+class PaymentProcessor {
 public:
-    Order(const string& orderId) : orderId(orderId) {}
-
-    void addItem(const string& product, int quantity, double unitPrice) {
-        lineItems.emplace_back(product, quantity, unitPrice);
+    bool charge(const string& email, double amount) {
+        cout << "Charging $" << amount << " to " << email << endl;
+        return true; // Simulated: payment succeeds
     }
+};
 
-    void removeItem(const string& product) {
-        lineItems.erase(
-            remove_if(lineItems.begin(), lineItems.end(),
-                [&](const LineItem& item) {
-                    return item.getProductName() == product;
-                }),
-            lineItems.end());
+class QRCodeGenerator {
+public:
+    string generate(const string& eventId, const string& seatNumber) {
+        string qrCode = "QR-" + eventId + "-" + seatNumber;
+        cout << "Generated QR code: " << qrCode << endl;
+        return qrCode;
     }
+};
 
-    double getTotal() const {
-        double total = 0;
-        for (const auto& item : lineItems) {
-            total += item.getSubtotal();
+class EmailService {
+public:
+    void sendConfirmation(const string& email, const string& qrCode) {
+        cout << "Sending confirmation to " << email << " with code " << qrCode << endl;
+    }
+};
+
+class TicketBookingService {
+public:
+    bool bookTicket(const string& eventId, const string& seatNumber,
+                    const string& email, double amount,
+                    SeatValidator& validator, PaymentProcessor& payment,
+                    QRCodeGenerator& qrGenerator, EmailService& emailService) {
+        if (!validator.isAvailable(eventId, seatNumber)) {
+            cout << "Seat not available." << endl;
+            return false;
         }
-        return total;
-    }
 
-    void printReceipt() const {
-        cout << "Order: " << orderId << endl;
-        for (const auto& item : lineItems) {
-            item.describe();
+        if (!payment.charge(email, amount)) {
+            cout << "Payment failed." << endl;
+            return false;
         }
-        cout << "Total: $" << getTotal() << endl;
+
+        string qrCode = qrGenerator.generate(eventId, seatNumber);
+        emailService.sendConfirmation(email, qrCode);
+
+        cout << "Booking confirmed!" << endl;
+        return true;
     }
 };
 
 int main() {
-    Order order("ORD-1001");
-    order.addItem("Wireless Mouse", 2, 29.99);
-    order.addItem("USB-C Cable", 3, 9.99);
-    order.addItem("Laptop Stand", 1, 49.99);
+    TicketBookingService bookingService;
 
-    order.printReceipt();
+    // All dependencies are created externally and passed in
+    SeatValidator validator;
+    PaymentProcessor payment;
+    QRCodeGenerator qrGenerator;
+    EmailService emailService;
 
-    // When order goes out of scope, all LineItems are destroyed
-    // automatically (RAII). No manual cleanup needed.
+    bookingService.bookTicket("CONF-2025", "A12", "alice@example.com",
+        99.99, validator, payment, qrGenerator, emailService);
 
     return 0;
 }
